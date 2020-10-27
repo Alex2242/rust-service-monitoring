@@ -1,0 +1,33 @@
+common:
+  delay: 600
+  delay_at_startup: 30
+  debug: false
+
+services:
+  ping_example:
+    probe: ping
+    probe_spec:
+      host: 127.0.0.1
+    notification:
+      - no-notify
+  ping_example_unknown_host:
+    probe: ping
+    probe_spec:
+      host: ianpiphr648g4fdg.qzoje
+    notification:
+      - no-notify
+  ping_example_unreachable_host:
+    probe: ping
+    probe_spec:
+      # hopefully this always fails
+      host: 172.200.200.200
+    notification:
+      - no-notify
+
+notifications:
+    email:
+      recipient_address: 'admin@domain.tld'
+      relay: 'smtp.domain.tld'
+      username: 'user'
+      password: 'password'
+      sender_address: 'monitoring@domain.tld'

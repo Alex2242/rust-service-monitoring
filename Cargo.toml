@@ -1,0 +1,16 @@
+[package]
+name = "rust-service-monitoring"
+version = "0.1.0"
+authors = ["Alex2242 <25385645+Alex2242@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+yaml-rust = "0.4"
+chrono = "0.4"
+lettre = "0.10.0-alpha.3"
+ctrlc = { version = "3.0", features = ["termination"] }
+clap = "3.0.0-beta.2"
+openssl-sys = "0.9"
+openssl = "0.10"

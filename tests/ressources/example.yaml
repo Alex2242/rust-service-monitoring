@@ -1,0 +1,29 @@
+common:
+  delay: 5
+  delay_at_startup: 3
+  debug: true
+
+services:
+  ping_example:
+    probe: ping
+    probe_spec:
+      host: 127.0.0.1
+    notification:
+      - 'no-notify'
+  https_example_hostnamemismatch:
+    probe: https
+    probe_spec:
+      host: 'ovh.net'
+  https_example:
+    probe: https
+    probe_spec:
+      host: 'google.com'
+
+
+notifications:
+    email:
+      recipient_address: 'admin@domain.tld'
+      relay: 'smtp.domain.tld'
+      username: 'user'
+      password: 'password'
+      sender_address: 'monitoring@domain.tld'
