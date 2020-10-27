@@ -1,5 +1,7 @@
 # Rust Services monitoring
 
+[![Build Status](https://travis-ci.org/Alex2242/rust-service-monitoring.svg?branch=master)](https://travis-ci.org/Alex2242/rust-service-monitoring)
+
 Rust-based tool for monitoring the status of various services.
 
 ## Probes
