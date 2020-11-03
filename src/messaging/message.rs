@@ -49,6 +49,21 @@ impl Message {
     }
 }
 
+impl PartialEq for Message {
+    fn eq(&self, other: &Self) -> bool {
+        let self_probe = &self.probe;
+        let self_severity = &self.severity;
+        let _other_probe = &other.probe;
+        let _other_severity = &other.severity;
+
+        self.date == other.date &&
+        self.service == other.service &&
+        matches!(self_probe, _other_probe) &&
+        matches!(self_severity, _other_severity) &&
+        self.header == other.header
+    }
+}
+
 #[cfg(test)]
 mod test {
 
@@ -104,5 +119,20 @@ mod test {
         let expected_str = String::from("[1970-01-01T00:00:00Z] Error ping/testService: testheader\ntest");
 
         assert_eq!(m.to_str(), expected_str);
+    }
+
+    #[test]
+    fn test_equality() {
+        let m = Message {
+            date: String::from("1970-01-01T00:00:00Z"),
+            body: String::from("test"),
+            header: String::from("testheader"),
+            probe: Probes::Ping,
+            severity: Severity::Error,
+            service: String::from("testService"),
+        };
+
+        assert!(m == m);
+        assert_eq!(m, m);
     }
 }
