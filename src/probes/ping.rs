@@ -7,8 +7,7 @@ use chrono::prelude::*;
 use std::process::Command;
 
 use crate::messaging::message::*;
-use crate::probes::Probe;
-use crate::probes::Probes;
+use crate::probes::*;
 
 pub struct Ping {
     pub host: String,
@@ -25,6 +24,7 @@ pub fn new(service_name: String, conf: &Yaml) -> Ping {
 impl Probe for Ping {
     fn run(&self) -> Message {
         let mut command = Command::new("ping");
+
         command
             .arg("-c 1")
             // timeout after 1s
@@ -43,7 +43,6 @@ impl Probe for Ping {
             .collect();
 
         let stdout = String::from_utf8(output_ascii).unwrap();
-        
 
         let mut message = Message::new();
 
@@ -72,7 +71,7 @@ impl Probe for Ping {
 
 #[cfg(test)]
 mod tests {
-    use crate::probes::Probe;
+    use crate::probes::*;
     use crate::tools::config::read_conf_file;
     use crate::messaging::message::Severity;
 
@@ -109,4 +108,16 @@ mod tests {
         assert_eq!(m.header, String::from("Unreachable host"));
         assert!(matches!(m.severity, Severity::Error));
     }
+
+    // #[test]
+    // fn testMT() {
+    //     let yaml = read_conf_file(String::from("tests/ressources/tests.yaml"));
+    //     let h = &yaml["services"]["ping_example_unreachable_host"]["probe_spec"];
+    //     let p = Box::new(super::new(String::from("testService"), &h));
+    //     p.run();
+    //     assert!(p.foo());
+        
+    //     let p2 = super::new(String::from("testService"), &h);
+    //     assert!(p2.foo());
+    // }
 }

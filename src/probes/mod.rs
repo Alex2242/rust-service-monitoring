@@ -5,7 +5,7 @@ extern crate yaml_rust;
 
 use super::messaging::message::Message;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Probes {
     Ping,
     Https,
@@ -28,3 +28,14 @@ pub trait Probe {
     // fn spawn(service: String, conf: &Yaml) -> Self;
     fn run(&self) -> Message;
 }
+
+// pub trait ProbeCommon {
+//     fn foo(&self) -> bool;
+
+// }
+
+// impl<T> ProbeCommon for T where T: Probe + ?Sized {
+//     fn foo(&self) -> bool {
+//         self.bla
+//     }
+// }

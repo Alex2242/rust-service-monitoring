@@ -1,6 +1,6 @@
 use crate::probes::Probes;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Severity {
     Error,
     Warning,
@@ -21,7 +21,7 @@ impl Severity {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Message {
     pub date: String,
     pub service: String,

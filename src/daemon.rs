@@ -1,19 +1,20 @@
 use crate::probes::*;
 use crate::tools::config::read_conf_file;
-use crate::messaging::mailer;
+use crate::messaging::*;
 use crate::messaging::mailer::Mailer;
-use crate::messaging::message::Severity;
+use crate::messaging::message::*;
 
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use std::thread;
 use std::time::Duration;
-// use std::convert::TryInto;
 
 pub struct Daemon {
     delay: u64,
     delay_at_startup: u64,
+    error_repeat_period: u64,
+    warning_repeat_period: u64,
     debug: bool,
     mailer: Mailer,
     probes: Vec<Box<dyn Probe>>,
@@ -42,6 +43,10 @@ impl Daemon {
             delay: yaml["common"]["delay"].as_i64().unwrap_or(600) as u64,
             delay_at_startup: yaml["common"]["delay_at_startup"]
                 .as_i64().unwrap_or(30) as u64,
+            error_repeat_period: yaml["common"]["error_repeat_period"]
+                .as_i64().unwrap_or(6) as u64,
+            warning_repeat_period: yaml["common"]["warning_repeat_period"]
+                .as_i64().unwrap_or(6 * 24) as u64,
             debug: yaml["common"]["debug"].as_bool().unwrap_or(false),
             probes: probes,
             mailer: mailer::new(&yaml["notifications"]["email"]),
@@ -51,27 +56,50 @@ impl Daemon {
     pub fn run(&self, run: Arc<AtomicBool>) {
         thread::sleep(Duration::from_secs(self.delay_at_startup));
 
+        let n_probes = self.probes.len();
         let mut count: u64 = 0;
+        let mut period_counters: Vec<u64> = vec![0; n_probes];
+        let mut message_cache: Vec<Message> = vec![Message::new(); n_probes];
 
         loop {
-            for probe in self.probes.iter() {
-                let message = probe.run();
+            for i in 0..n_probes {
+                let message = self.probes[i].run();
                 
+                // guard block for debug
                 if self.debug {
                     println!("{:?}\n\n", message);
+                    continue;
+                }
+
+                if matches!(message.severity, Severity::Info) {
+                    continue;
+                }
+
+                if message != message_cache[i] {
+                    period_counters[i] = 0;
+                    message_cache[i] = message.clone();
+                    self.mailer.send_message(message);
                 } else {
-                    match message.severity {
-                        Severity::Error => self.mailer.send_message(message),
-                        Severity::Warning => self.mailer.send_message(message),
-                        _ => continue,
+                    let should_send = match message.severity {
+                        Severity::Error => period_counters[i] >= self.error_repeat_period,
+                        Severity::Warning => period_counters[i] >= self.warning_repeat_period,
+                        _ => panic!("Impossible"),
+                    };
+
+                    period_counters[i] += 1;
+
+                    if should_send {
+                        self.mailer.send_message(message);
                     }
                 }
             }
 
+            // these ten or so lines are just meant to support graceful SIGTERM 
             while count < self.delay {
                 if !run.load(Ordering::SeqCst) { break }
 
-                thread::sleep(Duration::from_secs(1))
+                thread::sleep(Duration::from_secs(1));
+                count += 1;
             }
 
             if !run.load(Ordering::SeqCst) { break }

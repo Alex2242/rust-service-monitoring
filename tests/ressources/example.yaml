@@ -1,6 +1,10 @@
 common:
+  # number of seconds between each check
   delay: 5
   delay_at_startup: 3
+  # renotify after N conseccutive check
+  # ie (delay = 60 & error_repeat = 60) will notify of the error each hour
+  error_repeat_period: 10
   debug: true
 
 services:
