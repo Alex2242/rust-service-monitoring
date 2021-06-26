@@ -1,6 +1,6 @@
 # Rust Services monitoring
 
-[![Build Status](https://travis-ci.org/Alex2242/rust-service-monitoring.svg?branch=master)](https://travis-ci.org/Alex2242/rust-service-monitoring)
+[![Build Status](https://github.com/Alex2242/rust-service-monitoring/actions/workflows/rust.yml/badge.svg)](https://github.com/Alex2242/rust-service-monitoring/actions/workflows/rust.yml)
 
 Rust-based tool for monitoring the status of various services.
 
